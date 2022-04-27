@@ -1,0 +1,142 @@
+﻿@model PagedList.IPagedList<BTL_Nhom13.Models.TaiKhoan>
+@using PagedList.Mvc;
+@using System.Text;
+@{
+    ViewBag.Title = "Account";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Title{
+    Tài khoản
+}
+@*0: KH 1: Admin 2: Employee*@
+<link href="~/Content/PagedList.css" rel="stylesheet" />
+<style>
+    .normal-text {
+        text-transform: none;
+    }
+
+    .pagination {
+        margin: 0px 0px;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <a href="@Url.Action("Create", "AdminTaiKhoans")" class="btn btn-sm btn-primary normal-text" role="button">Thêm mới</a>
+        </div>
+        <div class="col-sm-6" style="text-align:right">
+            @Html.PagedListPager(Model, page => Url.Action("Account", new { page }))
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header card-header-primary">
+                    <h4 class="card-title">Danh sách tài khoản</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="text-primary">
+                            <th>Tên tài khoản</th>
+                            <th>Mật khẩu</th>
+                            <th>Quyền</th>
+                            <th>Tình trạng</th>
+                            <th>Hành động</th>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => item.TenTaiKhoan)</td>
+                                        @{
+                                            int lengthPass = item.MatKhau.Count();
+                                            StringBuilder pattern = new StringBuilder();
+                                            for (int i = 0; i < lengthPass; i++)
+                                            {
+                                                pattern.Append("\u2022");
+                                            }
+                                        }
+                                        <td>@Html.Raw(pattern)</td>
+                                        @if (item.Quyen == 1)
+                                        {
+                                            <td>
+                                                Quản trị viên
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                Nhân viên
+                                            </td>
+                                        }
+
+                                        <td>
+                                            @if (item.TinhTrang == true)
+                                            {
+                                                if (!item.TenTaiKhoan.Equals(Session["TenTaiKhoan"]))
+                                                {
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            <input type="checkbox" checked="checked" class="btn-active" data-id="@item.TenTaiKhoan">
+                                                            <span class="toggle"></span>
+                                                        </label>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            <input type="checkbox" checked="checked" class="btn-active" data-id="@item.TenTaiKhoan" disabled="disabled">
+                                                            <span class="toggle"></span>
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (!item.TenTaiKhoan.Equals(Session["TenTaiKhoan"]))
+                                                {
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            <input type="checkbox" class="btn-active" data-id="@item.TenTaiKhoan">
+                                                            <span class="toggle"></span>
+                                                        </label>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            <input type="checkbox" class="btn-active" data-id="@item.TenTaiKhoan" disabled="disabled">
+                                                            <span class="toggle"></span>
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink("Chi tiết", "Details", new { id = item.TenTaiKhoan.Trim() }, new { @class = "btn btn-sm btn-primary normal-text" })
+                                            @if (!item.TenTaiKhoan.Equals(Session["TenTaiKhoan"]))
+                                            {
+                                                @Html.ActionLink("Xóa", "Delete", new { id = item.TenTaiKhoan.Trim() }, new { @class = "btn btn-sm btn-primary normal-text" })
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align: right">
+        @Html.PagedListPager(Model, page => Url.Action("Account", new { page }))
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Areas/Admin/Assets/js/controller/tkquantri_status.js"></script>
+}
