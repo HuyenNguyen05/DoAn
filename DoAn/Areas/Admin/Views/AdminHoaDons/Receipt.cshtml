@@ -22,8 +22,10 @@
     <div class="row">
         <div class="col-sm-6">
         </div>
+       
         <div class="col-sm-6" style="text-align:right">
-            @Html.PagedListPager(Model, page => Url.Action("Receipt", new { page }))
+            @Html.ActionLink("Xuất khẩu Exel", "ExportToExel", new { @class = "btn btn-sm btn-primary" })
+            @*@Html.PagedListPager(Model, page => Url.Action("Receipt", new { page }))*@
         </div>
     </div>
     <div class="row">

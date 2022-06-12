@@ -8,6 +8,10 @@ using System.Web;
 using System.Web.Mvc;
 using BTL_Nhom13.Models;
 using PagedList;
+using System.IO;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using ClosedXML.Excel;
 
 namespace BTL_Nhom13.Areas.Admin.Controllers
 {
@@ -110,5 +114,40 @@ namespace BTL_Nhom13.Areas.Admin.Controllers
             }
             base.Dispose(disposing);
         }
+
+
+
+
+        public FileResult ExportToExel()
+        {
+            DataTable dt = new DataTable("Grid");
+
+            var temp = db.HoaDons.OrderBy(x => x.NgayDat).ToList();
+
+            dt.Columns.AddRange(new DataColumn[4] { new DataColumn("Tên khách hàng"),
+                                                     new DataColumn("Ngày đặt"),
+                                                     new DataColumn("Tình trạng"),
+                                                    new DataColumn("Phí vận chuyển")
+                                                     });
+
+            temp.ForEach(item =>
+            {
+                dt.Rows.Add(item.GioHang.TaiKhoan.TenKhachHang,item.NgayDat, item.TinhTrang, item.PhiShip);
+
+            });
+
+
+            using (XLWorkbook wb = new XLWorkbook()) //Install ClosedXml from Nuget for XLWorkbook  
+            {
+                wb.ColumnWidth = 35;
+                wb.Worksheets.Add(dt)
+                using (MemoryStream stream = new MemoryStream()) //using System.IO;  
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "HoaDon.xlsx");
+                }
+            }
+        }
+
     }
 }
