@@ -124,23 +124,48 @@ namespace BTL_Nhom13.Areas.Admin.Controllers
 
             var temp = db.HoaDons.OrderBy(x => x.NgayDat).ToList();
 
-            dt.Columns.AddRange(new DataColumn[4] { new DataColumn("Tên khách hàng"),
+            dt.Columns.AddRange(new DataColumn[8] { new DataColumn("Tên khách hàng"),
+                new DataColumn("Tên sản phẩm"),
                                                      new DataColumn("Ngày đặt"),
                                                      new DataColumn("Tình trạng"),
-                                                    new DataColumn("Phí vận chuyển")
+                                                    new DataColumn("Phí vận chuyển"),
+                                                    new DataColumn("Tổng tiền hàng"),
+                                                    new DataColumn("Thành tiền"),
+                                                    new DataColumn("Địa chỉ vận chuyển")
                                                      });
 
             temp.ForEach(item =>
             {
-                dt.Rows.Add(item.GioHang.TaiKhoan.TenKhachHang,item.NgayDat, item.TinhTrang, item.PhiShip);
+
+                // Lấy thêm giá + địa chỉ giao hàng
+                List<ChiTietGioHang> listDetail = db.ChiTietGioHangs.Where(g => g.MaGioHang == item.MaGioHang).ToList();
+                decimal total = 0;
+                string tensanpham = "";
+
+                listDetail.ForEach(detail =>
+                {
+                    // laasy ten sp
+                    var ten = db.SanPhams.Where(sp => sp.MaSP == detail.MaSP).FirstOrDefault();
+                    tensanpham += ten.TenSP + " ;";
+                    
+                    total += detail.Gia * detail.SoLuongMua;
+                });
+
+                decimal totalPlus = total + item.PhiShip;
+
+
+                dt.Rows.Add(item.GioHang.TaiKhoan.TenKhachHang, tensanpham, item.NgayDat, item.TinhTrang, item.PhiShip, total, totalPlus, item.DcNhanHang);
+                
 
             });
 
 
             using (XLWorkbook wb = new XLWorkbook()) //Install ClosedXml from Nuget for XLWorkbook  
             {
-                wb.ColumnWidth = 35;
-                wb.Worksheets.Add(dt)
+                
+                wb.Worksheets.Add(dt);
+                wb.ColumnWidth = 100.0;
+
                 using (MemoryStream stream = new MemoryStream()) //using System.IO;  
                 {
                     wb.SaveAs(stream);
